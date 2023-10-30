@@ -6,62 +6,67 @@ class player:
     self.game = game
     self.x, self.y = player_pos
     self.angle = player_angle
+    self.speed = 0
     self.x_change = x_change
     self.y_change = y_change
-    self.accelerating = False
-  def movement(self):
-    sin_a = math.sin(self.angle)
-    cos_a = math.cos(self.angle)
-    dx, dy = 0, 0
-    speed = player_accel * self.game.delta_time
-    speed_sin = speed * sin_a
-    speed_cos = speed * cos_a
-    keys = pg.key.get_pressed()
-    if keys[pg.K_w]:
-      self.x_change += speed_cos
-      self.y_change += speed_sin
-      dx += self.x_change
-      dy += self.y_change
-      self.accelerating = True
-    if keys[pg.K_s]:
-      self.x_change -= speed_cos
-      self.y_change -= speed_sin
-      dx += self.x_change
-      dy += self.y_change
-      self.accelerating = True
-    else:
-      self.accelerating = False
-      self.x_change *= 0.5
-      self.y_change *= 0.5
-      max_speed = 5
-      magnitude = math.sqrt(self.x_change**2 + self.y_change**2)
-      if magnitude > max_speed:
-          scaling_factor = max_speed / magnitude
-          self.x_change *= scaling_factor
-          self.y_change *= scaling_factor
-    self.check_wall_collision(dx, dy)
+    self.dx, self.dy = 0, 0
 
-    if keys[pg.K_LEFT]:
-      self.angle -= player_rot_speed * self.game.delta_time
-    if keys[pg.K_RIGHT]:
-      self.angle += player_rot_speed * self.game.delta_time
-    self.angle %= math.tau
-  def check_wall(self,x,y):
+
+    self.accelerating = False
+    self.stopped = True
+
+  def check_wall(self,x,y): #Check for wall collision by comparing that point with the world_map.
     return(x,y) not in self.game.map.world_map
-  def check_wall_collision(self,dx,dy):
-    if self.check_wall(int(self.x+dx),int(self.y)):
-      self.x += dx
-    if self.check_wall(int(self.x),int(self.y+dy)):
-      self.y += dy
+  
+  def get_movement(self): #Get movement from the player.
+    keys = pg.key.get_pressed() #dictionary of keys pressed this frame
+    if keys[pg.K_w]: #Forward acceleration
+      self.stopped = False
+      self.speed += player_accel * self.game.deltaTime
+    elif keys[pg.K_s]: #Backward acceleration
+      self.stopped = False
+      self.speed -= player_accel * self.game.deltaTime
+    else: #No input, begin decelerating
+      if not self.stopped:
+        if abs(self.speed) > accelsens:
+          self.speed *= 1 - (player_deccel * self.game.deltaTime)
+        else:
+          self.stopped = True
+          self.speed = 0
+
+    if keys[pg.K_LEFT]: #Turning
+      self.angle -= player_rot_speed * self.game.deltaTime
+    if keys[pg.K_RIGHT]:
+      self.angle += player_rot_speed * self.game.deltaTime
+    self.angle %= math.tau # To keep the player angle below 2pi. Clever.
+
+  def apply_movement(self): #Apply the current velocity (self.angle as direction, self.speed as magnitude)
+    self.x_change = self.speed * math.cos(self.angle) * self.game.deltaTime
+    self.y_change = self.speed * math.sin(self.angle) * self.game.deltaTime
+
+    #Throttle if max speed is reached.
+    if self.speed > max_speed: 
+        self.speed = max_speed
+
+    #Check for collisions before applying movement.
+    if self.check_wall(int(self.x + self.x_change),int(self.y)): #If not colliding with a wall on the x axis,
+      self.x += self.x_change #Then apply for that axis
+    if self.check_wall(int(self.x),int(self.y+self.y_change)):
+      self.y += self.y_change
 
   def draw(self):
-    pg.draw.line(self.game.screen, 'red', (self.x *100, self.y * 100), 
-                 (self.x * 100 + WIDTH * math.cos(self.angle),
-                 self.y * 100 + WIDTH * math.sin(self.angle)), 2)
-    pg.draw.rect(self.game.screen,'red', pg.Rect(self.x*100 , self.y*100 , 10, 10))
+    xDisplay = self.x * TANKCOORDINATEMULTX #The X coordinate for display purposes.
+    yDisplay = self.y * TANKCOORDINATEMULTY
+    pg.draw.line(self.game.screen, 'red', (xDisplay, yDisplay), 
+                 (xDisplay + WIDTH * math.cos(self.angle),
+                 yDisplay + WIDTH * math.sin(self.angle)), 2) #Drawing the aiming line. 
+    pg.draw.rect(self.game.screen,'red', pg.Rect(xDisplay , yDisplay , tankWidth, tankHeight )) #Drawing the rectangle.
 
   def update(self):
-    self.movement()
+    self.get_movement()
+    if not self.stopped:
+      self.apply_movement()
+  
   @property
   def pos(self):
     return self.x, self.y
