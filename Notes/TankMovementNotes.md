@@ -1,0 +1,3 @@
+For the tank-movement, there is a hypothetical velocity right triangle. The angle of the player will constitute the terminal angle. The length of the hypotenuse will determine the velocity. The increase of the length of this triangle will be dictated by player_accel. To apply this in-game, the amount that the player moves on the X and Y axis per frame is the respective sin and cosine of this triangle. 
+
+Whenever the player is not accelerating by pressing either forward or backward, they begin deccelerating by their velocity being multiplied by (1 - deccel_rate). Normally, this is 0.8. 
