@@ -17,6 +17,7 @@ class DebugDisplay:
             'playerSpeed' : self.game.player.speed,
             'playerCoord' : self.game.player.pos,
             'playerMapCoord' : self.game.player.map_pos,
+            'playerGroup' : self.game.playerGroup.sprites
         }
 
     def draw(self):

@@ -13,7 +13,8 @@ y_change = 0
 accelsens = .1 #How low x or y acceleration can go before it rounds to zero. This MUST be greater than the player_accel.
 max_speed= 3
 
-tankdimensions = 10, 10
+tankdimensions = 50, 20
+tankSpritePath = 'Tank.png'
 
 player_rot_speed = 1 #Radians per second
 
@@ -24,5 +25,5 @@ player_rot_speed = 1 #Radians per second
 RESMULTX = res[0] / 1600 
 RESMULTY = res[1] / 900
 
-TANKDIMENSIONS = tankWidth, tankHeight = 10 * RESMULTX, 10 * RESMULTY
+TANKDIMENSIONS = tankWidth, tankHeight = tankdimensions[0] * RESMULTX, tankdimensions[1] * RESMULTY
 TANKCOORDINATEMULT = TANKCOORDINATEMULTX, TANKCOORDINATEMULTY =  100 * RESMULTX, 100 * RESMULTY

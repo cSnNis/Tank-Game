@@ -19,6 +19,12 @@ class Game:
     self.new_game()
     
   def new_game(self): #Initialize any new objects here.
+
+    #Creating group objects to contain sprites
+    self.playerGroup = pg.sprite.Group()
+    #self.obstacleGroup
+
+    #Creating individual objects. These objects should add themselves to the groups in their init.
     self.map = Map(self)
     self.player = player(self)
 
@@ -34,6 +40,7 @@ class Game:
     self.screen.fill('black')
     self.map.draw()
     self.player.draw()
+    self.playerGroup.draw(self.screen)
 
     self.debugDisplay.draw()
 
