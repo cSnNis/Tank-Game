@@ -1,3 +1,7 @@
+#You can put filenames in here for files you want git to ignore indexing, meaning it will not track them.
+#They will stay on your harddrive, they will simply not get put on the github repo.
+#This is helpful for files produced by your IDE, which are specific to YOUR machine, and are useless to other people.
+#Here's an article on .gitignore; https://mindsers.blog/en/post/how-to-unindex-committed-files/
 __pycache__
 .replit
 .vscode
